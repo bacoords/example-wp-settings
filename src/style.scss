@@ -1,0 +1,15 @@
+.example-wp-settings {
+	h1 {
+		text-align: center;
+	}
+	.example-wp-settings-tab-panel {
+		.components-tab-panel__tabs {
+			justify-content: center;
+			border-bottom: 1px solid #ddd;
+		}
+	}
+
+	.example-wp-settings-field-group {
+		margin-top: 2rem;
+	}
+}
