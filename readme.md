@@ -1,6 +1,6 @@
 # Example WP Settings Page
 
-This is an example of a WordPress settings page. It uses the [WordPress Settings API](https://codex.wordpress.org/Settings_API) and [WordPress Components](https://developer.wordpress.org/block-editor/components/) to create a settings page with a tabbed interface.
+This is an example of a WordPress settings page. It uses the WordPress [Settings API](https://codex.wordpress.org/Settings_API), [REST API](https://developer.wordpress.org/rest-api/), and [Gutenberg Component Library](https://developer.wordpress.org/block-editor/components/) to create a JavaScript-powered settings page with a tabbed interface.
 
 <img width="1776" alt="Xnapper-2023-11-18-14 48 34" src="https://github.com/bacoords/example-wp-settings/assets/6867360/583f688e-1a14-4fa3-8b31-f8b0cf9b7dfd">
 
