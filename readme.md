@@ -2,6 +2,8 @@
 
 This is an example of a WordPress settings page. It uses the [WordPress Settings API](https://codex.wordpress.org/Settings_API) and [WordPress Components](https://developer.wordpress.org/block-editor/components/) to create a settings page with a tabbed interface.
 
+<img width="1776" alt="Xnapper-2023-11-18-14 48 34" src="https://github.com/bacoords/example-wp-settings/assets/6867360/583f688e-1a14-4fa3-8b31-f8b0cf9b7dfd">
+
 ## Development
 
 This plugin was scaffolded with [@wordpress/create-block](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-create-block/). If you'd like to develop from this repository, first install all of the dependencies:
