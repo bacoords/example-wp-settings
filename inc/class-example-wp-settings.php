@@ -104,7 +104,7 @@ class Example_WP_Settings {
 
 		// Register our custom setting.
 		register_setting(
-			'general',
+			'wpdev',
 			'example_wp_settings_option',
 			array(
 				'type'              => 'object', // Our setting is an object that could contain multiple values.
