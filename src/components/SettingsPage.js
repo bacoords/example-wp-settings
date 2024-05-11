@@ -10,55 +10,61 @@ import {
 	Snackbar,
 	TabPanel,
 } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
+
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+
 import Panel from './Panel';
 
 function SettingsPage() {
-	// This should basically match the scheme we set up when registering the setting.
-	const defaultSettings = {
-		example_wp_settings_option: {
-			first_name: '',
-			last_name: '',
-		},
-	};
+	// Get the settings from the store.
+	const { record: settings, hasResolved } = useSelect( ( select ) => {
+		return {
+			record: select( coreStore ).getEditedEntityRecord( 'root', 'site' ),
+			hasResolved: select( coreStore ).hasFinishedResolution(
+				'getEditedEntityRecord',
+				[ 'root', 'site' ]
+			),
+		};
+	} );
 
-	// We'll save the settings in state.
-	const [ settings, setSettings ] = useState( defaultSettings );
+	// We'll use these functions to save the settings to the store.
+	const { editEntityRecord, saveEntityRecord } = useDispatch( coreStore );
 
-	// We'll use this to show a success message when the settings are saved.
+	// State to show a success message when the settings are saved.
 	const [ success, setSuccess ] = useState( false );
 
-	// We'll use this to keep track of which tab is active.
+	// State to keep track of which tab is active.
 	const [ activeTab, setActiveTab ] = useState( 'panel' );
 
-	// This is the function that will run when the form is submitted.
-	const handleSubmit = ( event ) => {
-		event.preventDefault();
-		apiFetch( {
-			path: '/wp/v2/settings?_fields=example_wp_settings_option',
-			method: 'POST',
-			data: settings,
-		} ).then( ( response ) => {
-			// We'll update the settings in state with the response.
-			console.log( response );
-			setSettings( response );
-			setSuccess( true );
+	// If the settings haven't been loaded yet, we'll return null.
+	// This needs to happen after all the hooks are called.
+	if ( ! hasResolved ) {
+		return null;
+	}
+
+	// This will save settings the settings to the local state only.
+	const updateOptions = ( key, value ) => {
+		editEntityRecord( 'root', 'site', undefined, {
+			example_wp_settings_option: {
+				...settings.example_wp_settings_option,
+				[ key ]: value,
+			},
 		} );
 	};
 
-	// This will run when the component is mounted.
-	useEffect( () => {
-		apiFetch( {
-			path: '/wp/v2/settings?_fields=example_wp_settings_option',
-		} ).then( ( response ) => {
-			// We'll update the settings in state with the response.
-			console.log( response );
-			setSettings( response );
+	// In the block editor, saving to the database happens automatically when you publish or update a post.
+	// In the our settings page, you would need to add a separate button to save the settings.
+	const saveOptions = ( event ) => {
+		event.preventDefault();
+		saveEntityRecord( 'root', 'site', {
+			example_wp_settings_option: settings.example_wp_settings_option,
 		} );
-	}, [] );
+		setSuccess( true );
+	};
 
 	return (
-		<form className="example-wp-settings" onSubmit={ handleSubmit }>
+		<form className="example-wp-settings" onSubmit={ saveOptions }>
 			<Card>
 				<CardBody>
 					<h1>{ __( 'Example WP Settings Settings' ) }</h1>
@@ -75,7 +81,7 @@ function SettingsPage() {
 								content: (
 									<Panel
 										settings={ settings }
-										setSettings={ setSettings }
+										updateOptions={ updateOptions }
 									/>
 								),
 							},

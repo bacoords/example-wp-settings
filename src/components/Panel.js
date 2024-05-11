@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { Flex, FlexItem, TextControl } from '@wordpress/components';
 
-function Panel( { settings, setSettings } ) {
+function Panel( { settings, updateOptions } ) {
 	return (
 		<Flex
 			direction="column"
@@ -14,13 +14,7 @@ function Panel( { settings, setSettings } ) {
 					value={ settings.example_wp_settings_option?.first_name }
 					type={ 'text' }
 					onChange={ ( value ) => {
-						setSettings( {
-							...settings,
-							example_wp_settings_option: {
-								...settings.example_wp_settings_option,
-								first_name: value,
-							},
-						} );
+						updateOptions( 'first_name', value );
 					} }
 				/>
 			</FlexItem>
@@ -30,13 +24,7 @@ function Panel( { settings, setSettings } ) {
 					value={ settings.example_wp_settings_option?.last_name }
 					type={ 'text' }
 					onChange={ ( value ) => {
-						setSettings( {
-							...settings,
-							example_wp_settings_option: {
-								...settings.example_wp_settings_option,
-								last_name: value,
-							},
-						} );
+						updateOptions( 'last_name', value );
 					} }
 				/>
 			</FlexItem>

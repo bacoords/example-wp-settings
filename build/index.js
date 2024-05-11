@@ -23,7 +23,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function Panel({
   settings,
-  setSettings
+  updateOptions
 }) {
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
     direction: "column",
@@ -34,26 +34,14 @@ function Panel({
     value: settings.example_wp_settings_option?.first_name,
     type: 'text',
     onChange: value => {
-      setSettings({
-        ...settings,
-        example_wp_settings_option: {
-          ...settings.example_wp_settings_option,
-          first_name: value
-        }
-      });
+      updateOptions('first_name', value);
     }
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Last Name'),
     value: settings.example_wp_settings_option?.last_name,
     type: 'text',
     onChange: value => {
-      setSettings({
-        ...settings,
-        example_wp_settings_option: {
-          ...settings.example_wp_settings_option,
-          last_name: value
-        }
-      });
+      updateOptions('last_name', value);
     }
   })));
 }
@@ -79,9 +67,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/api-fetch */ "@wordpress/api-fetch");
-/* harmony import */ var _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _Panel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Panel */ "./src/components/Panel.js");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/core-data */ "@wordpress/core-data");
+/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _Panel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Panel */ "./src/components/Panel.js");
+
 
 
 
@@ -89,51 +80,57 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function SettingsPage() {
-  // This should basically match the scheme we set up when registering the setting.
-  const defaultSettings = {
-    example_wp_settings_option: {
-      first_name: '',
-      last_name: ''
-    }
-  };
+  // Get the settings from the store.
+  const {
+    record: settings,
+    hasResolved
+  } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_4__.useSelect)(select => {
+    return {
+      record: select(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_5__.store).getEditedEntityRecord('root', 'site'),
+      hasResolved: select(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_5__.store).hasFinishedResolution('getEditedEntityRecord', ['root', 'site'])
+    };
+  });
 
-  // We'll save the settings in state.
-  const [settings, setSettings] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(defaultSettings);
+  // We'll use these functions to save the settings to the store.
+  const {
+    editEntityRecord,
+    saveEntityRecord
+  } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_4__.useDispatch)(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_5__.store);
 
-  // We'll use this to show a success message when the settings are saved.
+  // State to show a success message when the settings are saved.
   const [success, setSuccess] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)(false);
 
-  // We'll use this to keep track of which tab is active.
+  // State to keep track of which tab is active.
   const [activeTab, setActiveTab] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)('panel');
 
-  // This is the function that will run when the form is submitted.
-  const handleSubmit = event => {
-    event.preventDefault();
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_4___default()({
-      path: '/wp/v2/settings?_fields=example_wp_settings_option',
-      method: 'POST',
-      data: settings
-    }).then(response => {
-      // We'll update the settings in state with the response.
-      console.log(response);
-      setSettings(response);
-      setSuccess(true);
+  // If the settings haven't been loaded yet, we'll return null.
+  // This needs to happen after all the hooks are called.
+  if (!hasResolved) {
+    return null;
+  }
+
+  // This will save settings the settings to the local state only.
+  const updateOptions = (key, value) => {
+    editEntityRecord('root', 'site', undefined, {
+      example_wp_settings_option: {
+        ...settings.example_wp_settings_option,
+        [key]: value
+      }
     });
   };
 
-  // This will run when the component is mounted.
-  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useEffect)(() => {
-    _wordpress_api_fetch__WEBPACK_IMPORTED_MODULE_4___default()({
-      path: '/wp/v2/settings?_fields=example_wp_settings_option'
-    }).then(response => {
-      // We'll update the settings in state with the response.
-      console.log(response);
-      setSettings(response);
+  // In the block editor, saving to the database happens automatically when you publish or update a post.
+  // In the our settings page, you would need to add a separate button to save the settings.
+  const saveOptions = event => {
+    event.preventDefault();
+    saveEntityRecord('root', 'site', {
+      example_wp_settings_option: settings.example_wp_settings_option
     });
-  }, []);
+    setSuccess(true);
+  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("form", {
     className: "example-wp-settings",
-    onSubmit: handleSubmit
+    onSubmit: saveOptions
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Card, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("h1", null, (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Example WP Settings Settings')), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.TabPanel, {
     className: "example-wp-settings-tab-panel",
     onSelect: tabName => {
@@ -143,9 +140,9 @@ function SettingsPage() {
     tabs: [{
       name: 'panel',
       title: 'Example Panel',
-      content: (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Panel__WEBPACK_IMPORTED_MODULE_5__["default"], {
+      content: (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Panel__WEBPACK_IMPORTED_MODULE_6__["default"], {
         settings: settings,
-        setSettings: setSettings
+        updateOptions: updateOptions
       })
     }]
   }, tab => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, tab.content))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardDivider, null), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Flex, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FlexItem, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
@@ -207,16 +204,6 @@ module.exports = window["React"];
 
 /***/ }),
 
-/***/ "@wordpress/api-fetch":
-/*!**********************************!*\
-  !*** external ["wp","apiFetch"] ***!
-  \**********************************/
-/***/ ((module) => {
-
-module.exports = window["wp"]["apiFetch"];
-
-/***/ }),
-
 /***/ "@wordpress/components":
 /*!************************************!*\
   !*** external ["wp","components"] ***!
@@ -224,6 +211,26 @@ module.exports = window["wp"]["apiFetch"];
 /***/ ((module) => {
 
 module.exports = window["wp"]["components"];
+
+/***/ }),
+
+/***/ "@wordpress/core-data":
+/*!**********************************!*\
+  !*** external ["wp","coreData"] ***!
+  \**********************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["coreData"];
+
+/***/ }),
+
+/***/ "@wordpress/data":
+/*!******************************!*\
+  !*** external ["wp","data"] ***!
+  \******************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["data"];
 
 /***/ }),
 
