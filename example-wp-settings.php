@@ -18,6 +18,6 @@ define( 'EXAMPLE_WP_SETTINGS_VERSION', '0.1.0' );
 define( 'EXAMPLE_WP_SETTINGS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'EXAMPLE_WP_SETTINGS_URL', plugin_dir_url( __FILE__ ) );
 
-require_once __DIR__ . '/inc/class-example-wp-settings.php';
+require_once EXAMPLE_WP_SETTINGS_PATH . '/inc/class-example-wp-settings.php';
 
 Example_WP_Settings::register();

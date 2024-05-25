@@ -105,23 +105,23 @@ class Example_WP_Settings {
 		// Register our custom setting.
 		register_setting(
 			'wpdev',
-			'example_wp_settings_option',
+			'wpdev_account_settings',
 			array(
 				'type'              => 'object', // Our setting is an object that could contain multiple values.
-				'description'       => 'Example WP Settings Option',
+				'description'       => 'Account Settings for our API.',
 				'sanitize_callback' => array( get_class(), 'sanitize_callback' ),
 				'default'           => array( // Default values for our setting.
-					'first_name' => '',
-					'last_name'  => '',
+					'account_number' => '',
+					'account_key'    => '',
 				),
 				'show_in_rest'      => array(
 					'schema' => array(
 						'type'       => 'object',
 						'properties' => array(
-							'first_name' => array( // Schema for our 'first_name'.
+							'account_number' => array( // Schema for our 'account_number'.
 								'type' => 'string',
 							),
-							'last_name'  => array( // Schema for our 'last_name'.
+							'account_key'    => array( // Schema for our 'account_key'.
 								'type' => 'string',
 							),
 						),
@@ -139,10 +139,10 @@ class Example_WP_Settings {
 	 * @return array
 	 */
 	public static function sanitize_callback( $settings ) {
-		// Sanitize our 'first_name'.
-		$settings['first_name'] = sanitize_text_field( $settings['first_name'] );
-		// Sanitize our 'last_name'.
-		$settings['last_name'] = sanitize_text_field( $settings['last_name'] );
+		// Sanitize our 'account_number'.
+		$settings['account_number'] = sanitize_text_field( $settings['account_number'] );
+		// Sanitize our 'account_key'.
+		$settings['account_key'] = sanitize_text_field( $settings['account_key'] );
 		return $settings;
 	}
 }

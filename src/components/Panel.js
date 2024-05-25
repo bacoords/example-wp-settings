@@ -1,7 +1,38 @@
 import { __ } from '@wordpress/i18n';
 import { Flex, FlexItem, TextControl } from '@wordpress/components';
 
-function Panel( { settings, updateOptions } ) {
+import { useDispatch, useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+
+function Panel() {
+	// Get the settings from the store.
+	const { record: settings, hasResolved } = useSelect( ( select ) => {
+		return {
+			record: select( coreStore ).getEditedEntityRecord( 'root', 'site' ),
+			hasResolved: select( coreStore ).hasFinishedResolution(
+				'getEditedEntityRecord',
+				[ 'root', 'site' ]
+			),
+		};
+	} );
+
+	// We'll use these functions to save the settings to the store.
+	const { editEntityRecord } = useDispatch( coreStore );
+
+	if ( ! hasResolved ) {
+		return null;
+	}
+
+	// This will save settings the settings to the local state only.
+	const updateOptions = ( key, value ) => {
+		editEntityRecord( 'root', 'site', undefined, {
+			wpdev_account_settings: {
+				...settings.wpdev_account_settings,
+				[ key ]: value,
+			},
+		} );
+	};
+
 	return (
 		<Flex
 			direction="column"
@@ -10,21 +41,21 @@ function Panel( { settings, updateOptions } ) {
 		>
 			<FlexItem>
 				<TextControl
-					label={ __( 'First Name' ) }
-					value={ settings.example_wp_settings_option?.first_name }
+					label={ __( 'Acount Number' ) }
+					value={ settings.wpdev_account_settings?.account_number }
 					type={ 'text' }
 					onChange={ ( value ) => {
-						updateOptions( 'first_name', value );
+						updateOptions( 'account_number', value );
 					} }
 				/>
 			</FlexItem>
 			<FlexItem>
 				<TextControl
-					label={ __( 'Last Name' ) }
-					value={ settings.example_wp_settings_option?.last_name }
-					type={ 'text' }
+					label={ __( 'Account Key' ) }
+					value={ settings.wpdev_account_settings?.account_key }
+					type={ 'password' }
 					onChange={ ( value ) => {
-						updateOptions( 'last_name', value );
+						updateOptions( 'account_key', value );
 					} }
 				/>
 			</FlexItem>

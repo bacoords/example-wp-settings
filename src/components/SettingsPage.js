@@ -29,7 +29,7 @@ function SettingsPage() {
 	} );
 
 	// We'll use these functions to save the settings to the store.
-	const { editEntityRecord, saveEntityRecord } = useDispatch( coreStore );
+	const { saveEntityRecord } = useDispatch( coreStore );
 
 	// State to show a success message when the settings are saved.
 	const [ success, setSuccess ] = useState( false );
@@ -42,25 +42,16 @@ function SettingsPage() {
 	if ( ! hasResolved ) {
 		return null;
 	}
-
-	// This will save settings the settings to the local state only.
-	const updateOptions = ( key, value ) => {
-		editEntityRecord( 'root', 'site', undefined, {
-			example_wp_settings_option: {
-				...settings.example_wp_settings_option,
-				[ key ]: value,
-			},
-		} );
-	};
-
 	// In the block editor, saving to the database happens automatically when you publish or update a post.
 	// In the our settings page, you would need to add a separate button to save the settings.
 	const saveOptions = ( event ) => {
 		event.preventDefault();
 		saveEntityRecord( 'root', 'site', {
-			example_wp_settings_option: settings.example_wp_settings_option,
+			wpdev_account_settings: settings.wpdev_account_settings,
+		} ).then( ( response ) => {
+			setSuccess( true );
+			console.log( response );
 		} );
-		setSuccess( true );
 	};
 
 	return (
@@ -78,12 +69,7 @@ function SettingsPage() {
 							{
 								name: 'panel',
 								title: 'Example Panel',
-								content: (
-									<Panel
-										settings={ settings }
-										updateOptions={ updateOptions }
-									/>
-								),
+								content: <Panel />,
 							},
 						] }
 					>

@@ -18,30 +18,61 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/data */ "@wordpress/data");
+/* harmony import */ var _wordpress_data__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_data__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/core-data */ "@wordpress/core-data");
+/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_4__);
 
 
 
-function Panel({
-  settings,
-  updateOptions
-}) {
+
+
+function Panel() {
+  // Get the settings from the store.
+  const {
+    record: settings,
+    hasResolved
+  } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_3__.useSelect)(select => {
+    return {
+      record: select(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_4__.store).getEditedEntityRecord('root', 'site'),
+      hasResolved: select(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_4__.store).hasFinishedResolution('getEditedEntityRecord', ['root', 'site'])
+    };
+  });
+
+  // We'll use these functions to save the settings to the store.
+  const {
+    editEntityRecord
+  } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_3__.useDispatch)(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_4__.store);
+  if (!hasResolved) {
+    return null;
+  }
+
+  // This will save settings the settings to the local state only.
+  const updateOptions = (key, value) => {
+    editEntityRecord('root', 'site', undefined, {
+      wpdev_account_settings: {
+        ...settings.wpdev_account_settings,
+        [key]: value
+      }
+    });
+  };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Flex, {
     direction: "column",
     gap: "4",
     className: "example-wp-settings-field-group"
   }, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('First Name'),
-    value: settings.example_wp_settings_option?.first_name,
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Acount Number'),
+    value: settings.wpdev_account_settings?.account_number,
     type: 'text',
     onChange: value => {
-      updateOptions('first_name', value);
+      updateOptions('account_number', value);
     }
   })), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.FlexItem, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
-    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Last Name'),
-    value: settings.example_wp_settings_option?.last_name,
-    type: 'text',
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Account Key'),
+    value: settings.wpdev_account_settings?.account_key,
+    type: 'password',
     onChange: value => {
-      updateOptions('last_name', value);
+      updateOptions('account_key', value);
     }
   })));
 }
@@ -93,7 +124,6 @@ function SettingsPage() {
 
   // We'll use these functions to save the settings to the store.
   const {
-    editEntityRecord,
     saveEntityRecord
   } = (0,_wordpress_data__WEBPACK_IMPORTED_MODULE_4__.useDispatch)(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_5__.store);
 
@@ -108,25 +138,16 @@ function SettingsPage() {
   if (!hasResolved) {
     return null;
   }
-
-  // This will save settings the settings to the local state only.
-  const updateOptions = (key, value) => {
-    editEntityRecord('root', 'site', undefined, {
-      example_wp_settings_option: {
-        ...settings.example_wp_settings_option,
-        [key]: value
-      }
-    });
-  };
-
   // In the block editor, saving to the database happens automatically when you publish or update a post.
   // In the our settings page, you would need to add a separate button to save the settings.
   const saveOptions = event => {
     event.preventDefault();
     saveEntityRecord('root', 'site', {
-      example_wp_settings_option: settings.example_wp_settings_option
+      wpdev_account_settings: settings.wpdev_account_settings
+    }).then(response => {
+      setSuccess(true);
+      console.log(response);
     });
-    setSuccess(true);
   };
   return (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)("form", {
     className: "example-wp-settings",
@@ -140,10 +161,7 @@ function SettingsPage() {
     tabs: [{
       name: 'panel',
       title: 'Example Panel',
-      content: (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Panel__WEBPACK_IMPORTED_MODULE_6__["default"], {
-        settings: settings,
-        updateOptions: updateOptions
-      })
+      content: (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_Panel__WEBPACK_IMPORTED_MODULE_6__["default"], null)
     }]
   }, tab => (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, tab.content))), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardDivider, null), (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CardBody, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Flex, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.FlexItem, null, (0,react__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.Button, {
     variant: "primary",
